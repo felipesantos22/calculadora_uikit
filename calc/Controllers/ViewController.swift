@@ -14,6 +14,12 @@ class ViewController: UIViewController {
     @IBOutlet weak var input2: UITextField!
     @IBOutlet weak var result: UILabel!
 
+    @IBOutlet weak var btnSum: UIButton!
+    @IBOutlet weak var btnMin: UIButton!
+    @IBOutlet weak var btnMult: UIButton!
+    @IBOutlet weak var btnDiv: UIButton!
+    
+    
     var operation: String = ""
     
     var context: NSManagedObjectContext! // Contexto do Core Data
@@ -23,11 +29,24 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         textTilte.layer.cornerRadius = 10
         textTilte.clipsToBounds = true
         
         result.layer.cornerRadius = 10
         result.clipsToBounds = true
+        
+        btnSum.layer.cornerRadius = 10
+        btnSum.clipsToBounds = true
+        
+        btnDiv.layer.cornerRadius = 10
+        btnDiv.clipsToBounds = true
+        
+        btnMult.layer.cornerRadius = 10
+        btnMult.clipsToBounds = true
+        
+        btnMin.layer.cornerRadius = 10
+        btnMin.clipsToBounds = true
         
         // Obtendo o contexto do Core Data
         context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
