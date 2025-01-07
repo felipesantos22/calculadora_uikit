@@ -9,11 +9,11 @@ import UIKit
 import CoreData
 
 class ViewController: UIViewController {
-
+    
     @IBOutlet weak var input1: UITextField!
     @IBOutlet weak var input2: UITextField!
     @IBOutlet weak var result: UILabel!
-
+    
     @IBOutlet weak var btnSum: UIButton!
     @IBOutlet weak var btnMin: UIButton!
     @IBOutlet weak var btnMult: UIButton!
@@ -24,7 +24,7 @@ class ViewController: UIViewController {
     
     var context: NSManagedObjectContext! // Contexto do Core Data
     
-   
+    
     @IBOutlet weak var textTilte: UILabel!
     
     override func viewDidLoad() {
@@ -50,10 +50,10 @@ class ViewController: UIViewController {
         
         // Obtendo o contexto do Core Data
         context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-
+        
     }
-
-
+    
+    
     func saveCalculation(num1: Double, num2: Double, operation: String) -> Double? {
         // Calcular o resultado primeiro
         let resultValue: Double?
@@ -69,12 +69,12 @@ class ViewController: UIViewController {
         default:
             resultValue = nil
         }
-
+        
         // Verificar se o resultado é válido
         guard let result = resultValue else {
             return nil
         }
-
+        
         // Criando um novo objeto no Core Data
         let operationModel = OperationModel(context: context)
         operationModel.id = UUID()
@@ -83,7 +83,7 @@ class ViewController: UIViewController {
         operationModel.operation = operation
         operationModel.result = result
         operationModel.timestamp = Date()
-
+        
         // Salvando no Core Data
         do {
             try context.save()
@@ -91,11 +91,11 @@ class ViewController: UIViewController {
         } catch {
             print("Erro ao salvar cálculo: \(error.localizedDescription)")
         }
-
+        
         return result
     }
-
-
+    
+    
     func calculate() {
         if let num1 = Double(input1.text!), // Converte input1 para Double
            let num2 = Double(input2.text!) { // Converte input2 para Double
@@ -111,29 +111,48 @@ class ViewController: UIViewController {
             result.text = "Valores inválidos!"
         }
     }
-
+    
     
     
     @IBAction func plusButtonTapped(_ sender: UIButton) {
         operation = "+"
         calculate()
     }
-
+    
     @IBAction func minusButtonTapped(_ sender: UIButton) {
         operation = "-"
         calculate()
     }
-
+    
     @IBAction func multiplyButtonTapped(_ sender: UIButton) {
         operation = "*"
         calculate()
     }
-
+    
     @IBAction func divideButtonTapped(_ sender: UIButton) {
         operation = "/"
         calculate()
     }
     
     
+    func sumAllResults() -> Double {
+        // Fetch request para buscar todos os cálculos
+        let fetchRequest: NSFetchRequest<OperationModel> = OperationModel.fetchRequest()
+        
+        do {
+            // Obtém os cálculos armazenados no Core Data
+            let calculations = try context.fetch(fetchRequest)
+            
+            // Usa reduce para somar todos os resultados
+            let totalSum = calculations.reduce(0) { partialSum, calculation in
+                partialSum + calculation.result // Sem o '?? 0'
+            }
+            
+            return totalSum
+        } catch {
+            print("Erro ao buscar cálculos: \(error.localizedDescription)")
+            return 0
+        }
+    }
     
 }
