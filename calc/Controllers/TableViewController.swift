@@ -11,7 +11,8 @@ import CoreData
 class TableViewController: UITableViewController {
     
     var operations : [OperationModel] = []
-
+    var context : NSManagedObjectContext!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -21,6 +22,7 @@ class TableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         fetchOperations()
+        
     }
 
     // MARK: - Table view data source
@@ -78,6 +80,30 @@ class TableViewController: UITableViewController {
         return "Operações"
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "detailsOperation" {
+            if let indexPath = tableView.indexPathForSelectedRow {
+                let operation = operations[indexPath.row]
+                let controller = segue.destination as! DetailsViewController
+                controller.operationModel = operation
+            }
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCell.EditingStyle.delete {
+            let op = operations[indexPath.row]
+            context.delete(op)
+            do {
+                try context.save()
+                tableView.reloadData()
+                print("Operation deleted")
+            } catch let error as NSError {
+                print("Erro ao deletar: \(error), \(error.userInfo)")
+            }
+        }
+    }
+    
     
     /*
     // Override to support conditional editing of the table view.
@@ -123,5 +149,6 @@ class TableViewController: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
+
 
 }

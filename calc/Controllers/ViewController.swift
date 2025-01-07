@@ -53,33 +53,35 @@ class ViewController: UIViewController {
 
     }
 
-    func calculate(num1: Double, num2: Double, operation: String) -> Double? {
+
+    func saveCalculation(num1: Double, num2: Double, operation: String) -> Double? {
+        // Calcular o resultado primeiro
+        let resultValue: Double?
         switch operation {
         case "+":
-            return num1 + num2
+            resultValue = num1 + num2
         case "-":
-            return num1 - num2
+            resultValue = num1 - num2
         case "*":
-            return num1 * num2
+            resultValue = num1 * num2
         case "/":
-            if num2 != 0 {
-                return num1 / num2
-            } else {
-                return nil // Divisão por zero
-            }
+            resultValue = num2 != 0 ? num1 / num2 : nil
         default:
+            resultValue = nil
+        }
+
+        // Verificar se o resultado é válido
+        guard let result = resultValue else {
             return nil
         }
-    }
 
-    func saveCalculation(num1: Double, num2: Double, operation: String, resultValue: Double) {
         // Criando um novo objeto no Core Data
         let operationModel = OperationModel(context: context)
         operationModel.id = UUID()
         operationModel.value1 = num1
         operationModel.value2 = num2
         operationModel.operation = operation
-        operationModel.result = resultValue
+        operationModel.result = result
         operationModel.timestamp = Date()
 
         // Salvando no Core Data
@@ -89,24 +91,29 @@ class ViewController: UIViewController {
         } catch {
             print("Erro ao salvar cálculo: \(error.localizedDescription)")
         }
+
+        return result
     }
 
+
     func calculate() {
-        // Converte as entradas para Double
-        let num1 = Double(input1.text ?? "") ?? 0
-        let num2 = Double(input2.text ?? "") ?? 0
-        
-        // Chama a função de cálculo
-        if let resultValue = calculate(num1: num1, num2: num2, operation: operation) {
-            result.text = String(format: "%.1f", resultValue)
-            
-            // Salvando o cálculo no Core Data
-            saveCalculation(num1: num1, num2: num2, operation: operation, resultValue: resultValue)
+        if let num1 = Double(input1.text!), // Converte input1 para Double
+           let num2 = Double(input2.text!) { // Converte input2 para Double
+            if let calculationResult = saveCalculation(num1: num1, num2: num2, operation: operation) {
+                // Exibe o resultado no rótulo
+                result.text = String(calculationResult)
+            } else {
+                // Exibe mensagem para divisão por zero ou operação inválida
+                result.text = "Operação inválida!"
+            }
         } else {
-            result.text = "Erro no cálculo"
+            // Exibe mensagem para valores de entrada inválidos
+            result.text = "Valores inválidos!"
         }
     }
 
+    
+    
     @IBAction func plusButtonTapped(_ sender: UIButton) {
         operation = "+"
         calculate()
@@ -126,4 +133,7 @@ class ViewController: UIViewController {
         operation = "/"
         calculate()
     }
+    
+    
+    
 }
